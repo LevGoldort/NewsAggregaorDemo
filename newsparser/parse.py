@@ -2,7 +2,7 @@ import requests
 import json
 import random
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+from datetime import datetime
 from newsparser.models import News
 
 YNET_URL = 'https://www.ynetnews.com/category/3089'
@@ -94,10 +94,5 @@ def parse_ynet(from_time):
     return result
 
 
-
-
 if __name__ == '__main__':
-    now = datetime.now()
-    delta = timedelta(hours=30)
-    results = parse_ynet(now - delta)
-    print(results)
+    pass

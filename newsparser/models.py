@@ -22,7 +22,8 @@ class User(Base):
     # fields
     user_id = Column(Integer(), primary_key=True, index=True)
     name = Column(String())
+    email = Column(String())
     subscription_type = Column(String())
     subscription_date = Column(String())
     subscription_time = Column(String())
-    last_news_id = Column(Integer())
+    last_update = Column(DateTime)

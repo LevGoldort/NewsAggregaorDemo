@@ -23,7 +23,7 @@ class User(Base):
     user_id = Column(Integer(), primary_key=True, index=True)
     name = Column(String())
     email = Column(String())
-    subscription_type = Column(String())
-    subscription_date = Column(String())
-    subscription_time = Column(String())
-    last_update = Column(DateTime)
+    subscription_type = Column(String())  # Can be ASAP, Daily, Weekly
+    subscription_day = Column(String())  # Can be ASAP, Daily, Friday, Sunday
+    subscription_time = Column(String())  # Can be ASAP, 10am, 9am, 7pm, 10pm
+    last_update = Column(DateTime)  # The time news were sent to user previously

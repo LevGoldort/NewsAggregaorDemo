@@ -91,7 +91,7 @@ def parse_ynet(from_time):
         )
         result.append(news_object)
 
-    return result
+    return reversed(result)  # Result reversed to be from earlier to latest datetime
 
 
 if __name__ == '__main__':

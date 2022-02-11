@@ -63,7 +63,7 @@ def parse_ynet(from_time):
         date_time_string = date_element.text.replace(' ', '')
         news_datetime = datetime.strptime(date_time_string, '%H:%M,%m.%d.%y')
 
-        if news_datetime < from_time:  # No need to parse outdated news
+        if news_datetime <= from_time:  # No need to parse outdated news
             continue
 
         # Getting author, title and link

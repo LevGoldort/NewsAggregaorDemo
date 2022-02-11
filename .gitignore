@@ -1,2 +1,8 @@
 .idea
 newsparser.db
+config.cfg
+output.txt
+.DS_Store
+newsparser/.DS_Store
+newsparser/__init__.pyc
+newsparser/models.pyc

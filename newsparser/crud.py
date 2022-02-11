@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from datetime import datetime
 
 """
 Session manages persistence operations for ORM-mapped objects.
@@ -52,7 +52,25 @@ def list_all_users(db: Session):
 
 
 def list_users_by_subscription(db: Session, subscription_type, subscription_day, subscription_time):
+
     users_by_subscription = db.query(User).filter((User.subscription_type == subscription_type)
                                                   & (User.subscription_day == subscription_day)
                                                   & (User.subscription_time == subscription_time)).all()
     return users_by_subscription
+
+
+def update_user(db: Session, user_id, new_update_time):
+    db.query(User).filter(User.user_id == user_id).update({'last_update': new_update_time})
+    db.commit()
+
+
+def generate_mail_body(db, user):
+    update_user(db=db, user_id=user.user_id, new_update_time=datetime.now())
+    news = list_news_from_date(db=db, from_time=user.last_update)
+    update_user(db=db, user_id=user.user_id, new_update_time=datetime.now())
+    mail_string = ''
+
+    for element in news:
+        mail_string += element.email + '\n'
+
+    return mail_string

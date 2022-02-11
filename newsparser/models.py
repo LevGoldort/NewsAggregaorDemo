@@ -23,6 +23,7 @@ class User(Base):
     user_id = Column(Integer(), primary_key=True, index=True)
     name = Column(String())
     email = Column(String())
+    subscription_category = Column(String)  # Coma-separated values of spots, politics, finance, weather
     subscription_type = Column(String())  # Can be ASAP, Daily, Weekly
     subscription_day = Column(String())  # Can be ASAP, Daily, Friday, Sunday
     subscription_time = Column(String())  # Can be ASAP, 10am, 9am, 7pm, 10pm

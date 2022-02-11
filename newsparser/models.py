@@ -9,10 +9,8 @@ class News(Base):
     # fields
     news_id = Column(Integer(), primary_key=True, index=True)
     url = Column(String())
-    date = Column(Date())
-    time = Column(DateTime())
-    age = Column(Integer)
-    header = Column(String())
+    date_time = Column(DateTime())
+    title = Column(String())
     text = Column(String())
     author = Column(String())
     category = Column(String())

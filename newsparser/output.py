@@ -3,11 +3,12 @@ import ssl
 import json
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from newsparser.constants import DIR
 
 
 def send_mail(email, body):
 
-    with open('config.cfg') as f:
+    with open(f'{DIR}/config.cfg') as f:
         config_dict = json.load(f)
 
     from_email = config_dict['email']

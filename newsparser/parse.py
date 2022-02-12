@@ -1,22 +1,16 @@
-import requests
 import json
 import random
+from datetime import datetime
+
+import requests
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+
 from newsparser.models import News
-from newsparser.constants import CATEGORIES
-
-YNET_URL = 'https://www.ynetnews.com/category/3089'
-SKY_URL = 'https://news.sky.com/'
-
-SPORTS_KEYWORDS = frozenset(['football', 'basketball', 'ski', 'sport', 'olympics', 'athletics', 'tournament'])
-POLITICS_KEYWORDS = frozenset(['president', 'prime minister', 'law', 'U.N', 'NATO', 'government',
-                               'democrats', 'republicans', 'minister', 'vote', 'politician', 'political party'])
-FINANCE_KEYWORDS = frozenset(['dollar', 'stocks', 'shekel', 'bitcoin', 'company', 'sp500', 'nasdaq'])
-WEATHER_KEYWORDS = frozenset(['rain', 'snow', 'sunny', 'earthquake', 'clouds', 'storm', 'flood'])
+from newsparser import crud
+from newsparser.db import db
 
 
-def get_ynet_article_text(url):
+def get_ynet_article_text(url: str) -> str:
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -26,7 +20,7 @@ def get_ynet_article_text(url):
     return article_dict['articleBody']
 
 
-def get_sky_article_text(url):
+def get_sky_article_text(url: str) -> str:
 
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -34,12 +28,12 @@ def get_sky_article_text(url):
     article_dict = json.loads(article.text)
 
     if article_dict['@type'] != 'NewsArticle':
-        return None
+        return ''
 
     return article_dict['articleBody']
 
 
-def get_sky_article_time(url):
+def get_sky_article_time(url: str) -> str:
 
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -47,7 +41,7 @@ def get_sky_article_time(url):
     article_dict = json.loads(article.text)
 
     if article_dict['@type'] != 'NewsArticle':
-        return None
+        return ''
 
     if 'dateCreated' in article_dict.keys():
         return article_dict['dateCreated']
@@ -55,33 +49,29 @@ def get_sky_article_time(url):
     return article_dict['datePublished']
 
 
-def categorize_article(text):
+def categorize_article(text: str) -> str:
     # Checking text for the keywords and return category string
     found_categories = []
 
-    if any(keyword in text for keyword in SPORTS_KEYWORDS):
-        found_categories.append('sports')
-    if any(keyword in text for keyword in POLITICS_KEYWORDS):
-        found_categories.append('politics')
-    if any(keyword in text for keyword in FINANCE_KEYWORDS):
-        found_categories.append('finance')
-    if any(keyword in text for keyword in WEATHER_KEYWORDS):
-        found_categories.append('weather')
+    categories = crud.get_categories(db=db)
+    cat_list=[]
+
+    for category in categories:
+        keywords = category.category_keywords.split(',')
+        if any(keyword in text for keyword in keywords):
+            found_categories.append(category.category_name)
+        cat_list.append(category.category_name)
 
     if not found_categories:
-        return random.sample(CATEGORIES, 1)[0]
-
-    elif len(found_categories) == 1:  # only one category found
-        return found_categories[0]
-
+        return random.choice(cat_list)
     else:
-        return random.sample(found_categories, 1)[0]
+        return random.choice(found_categories)
 
 
-def parse_ynet(from_time):
+def parse_ynet(url: str, from_time: datetime) -> list:
     # Parses news from YNET_URL to the list of News class. Takes only the news appeared after from_time.
 
-    page = requests.get(YNET_URL)
+    page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
     all_news = soup.find_all('div', class_='slotView')
     result = []
@@ -96,10 +86,6 @@ def parse_ynet(from_time):
         if news_datetime <= from_time:  # No need to parse outdated news
             continue
 
-        # Getting author, title and link
-        author_element = news.find('div', class_='moreDetails')
-        author = author_element.find('span', class_='author').text
-
         title_element = news.find('div', class_='slotTitle')
         title = title_element.text
 
@@ -110,13 +96,12 @@ def parse_ynet(from_time):
         text = get_ynet_article_text(link_url)
         category = categorize_article(text)
 
-        # Creating News object and appending to results:
+        # Creating News object and appending results:
         news_object = News(
             url=link_url,
             date_time=news_datetime,
             title=title,
             text=text,
-            author=author,
             category=category
         )
         result.append(news_object)
@@ -124,16 +109,16 @@ def parse_ynet(from_time):
     return result
 
 
-def fix_sky_link(url):
+def fix_sky_link(url: str) -> str:
     # Some links are without site
     if url.find('news.sky.com') == -1:
         return 'https://news.sky.com/'+url
     return url
 
 
-def parse_sky(from_time):
+def parse_sky(url: str, from_time: datetime) -> list:
 
-    page = requests.get(SKY_URL)
+    page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
     all_news = soup.find_all('h3', class_='sdc-site-tile__headline')
     result = []
@@ -155,10 +140,8 @@ def parse_sky(from_time):
         #
         #
         text = get_sky_article_text(link_url)
-        if not text:  #  Not parsing live-blogs and non-articles
+        if not text:  # Not parsing live-blogs and non-articles
             continue
-
-        author = 'SKY'
 
         title_element = news.find('span', class_='sdc-site-tile__headline-text')
         title = title_element.text
@@ -170,13 +153,8 @@ def parse_sky(from_time):
             date_time=news_datetime,
             title=title,
             text=text,
-            author=author,
             category=category
         )
         result.append(news_object)
 
     return result
-
-
-if __name__ == '__main__':
-    print(parse_sky(datetime.now()-timedelta(hours=16)))

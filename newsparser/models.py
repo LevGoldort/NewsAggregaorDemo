@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, DateTime
+from sqlalchemy import Column, Integer, String, DateTime
 from .db import Base
 
 
@@ -7,12 +7,11 @@ class News(Base):
     __tablename__ = "news"
 
     # fields
-    news_id = Column(Integer(), primary_key=True, index=True)
+    news_id = Column(Integer(), primary_key=True, index=True)  # Make just id
     url = Column(String())
     date_time = Column(DateTime())
     title = Column(String())
     text = Column(String())
-    author = Column(String())
     category = Column(String())
 
 
@@ -20,11 +19,28 @@ class User(Base):
     __tablename__ = "users"
 
     # fields
-    user_id = Column(Integer(), primary_key=True, index=True)
+    user_id = Column(Integer(), primary_key=True, index=True)  # Make just id
     name = Column(String())
     email = Column(String())
-    subscription_category = Column(String)  # Coma-separated values of spots, politics, finance, weather
-    subscription_type = Column(String())  # Can be ASAP, Daily, Weekly
-    subscription_day = Column(String())  # Can be ASAP, Daily, Friday, Sunday
-    subscription_time = Column(String())  # Can be ASAP, 10am, 9am, 7pm, 10pm
+    subscription_id = Column(Integer())
+    news_received = Column(Integer())
     last_update = Column(DateTime)  # The time news were sent to user previously
+
+
+class Subscription(Base):
+    __tablename__ = 'subscriptions'
+
+    # fields
+    subscription_id = Column(Integer(), primary_key=True, index=True)  # Make just id
+    short_name = Column(String())
+    long_name = Column(String())
+    cron_setting = Column(String())
+
+
+class NewsCategory(Base):
+    __tablename__ = 'categories'
+
+    # fields
+    category_id = Column(Integer(), primary_key=True, index=True)  # Make just id
+    category_name = Column(String(), unique=True)
+    category_keywords = Column(String())

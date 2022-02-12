@@ -1,6 +1,6 @@
 .idea
 newsparser.db
-config.cfg
+config.json
 output.txt
 .DS_Store
 newsparser/.DS_Store

@@ -1,6 +1,6 @@
 from newsparser import models
 from newsparser.db import engine
-from newsparser.parse import parse_ynet
+from newsparser.parse import parse_ynet, parse_sky
 from datetime import datetime, timedelta
 import newsparser.crud as crud
 from newsparser.db import get_db
@@ -16,10 +16,13 @@ def update_news():
     except:
         from_time = datetime.now() - timedelta(hours=24)  # If no last news in DB - load news for 24h
 
-    results = parse_ynet(from_time=from_time)
+    results_ynet = parse_ynet(from_time=from_time)
+    results_sky = parse_sky(from_time=from_time)
+    results = sorted(results_ynet + results_sky, key=lambda x: x.date_time, reverse=False)
 
     for res in results:
         crud.create_news(db=get_db(), news=res)
+        print(res.date_time)
 
     update_users('ASAP', 'ASAP', 'ASAP')
 

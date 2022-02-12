@@ -2,11 +2,12 @@ import requests
 import json
 import random
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 from newsparser.models import News
 from newsparser.constants import CATEGORIES
 
 YNET_URL = 'https://www.ynetnews.com/category/3089'
+SKY_URL = 'https://news.sky.com/'
 
 SPORTS_KEYWORDS = frozenset(['football', 'basketball', 'ski', 'sport', 'olympics', 'athletics', 'tournament'])
 POLITICS_KEYWORDS = frozenset(['president', 'prime minister', 'law', 'U.N', 'NATO', 'government',
@@ -23,6 +24,35 @@ def get_ynet_article_text(url):
     article_dict = json.loads(article.text)
 
     return article_dict['articleBody']
+
+
+def get_sky_article_text(url):
+
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    article = soup.find('script', type='application/ld+json')
+    article_dict = json.loads(article.text)
+
+    if article_dict['@type'] != 'NewsArticle':
+        return None
+
+    return article_dict['articleBody']
+
+
+def get_sky_article_time(url):
+
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    article = soup.find('script', type='application/ld+json')
+    article_dict = json.loads(article.text)
+
+    if article_dict['@type'] != 'NewsArticle':
+        return None
+
+    if 'dateCreated' in article_dict.keys():
+        return article_dict['dateCreated']
+
+    return article_dict['datePublished']
 
 
 def categorize_article(text):
@@ -91,8 +121,62 @@ def parse_ynet(from_time):
         )
         result.append(news_object)
 
-    return reversed(result)  # Result reversed to be from earlier to latest datetime
+    return result
+
+
+def fix_sky_link(url):
+    # Some links are without site
+    if url.find('news.sky.com') == -1:
+        return 'https://news.sky.com/'+url
+    return url
+
+
+def parse_sky(from_time):
+
+    page = requests.get(SKY_URL)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    all_news = soup.find_all('h3', class_='sdc-site-tile__headline')
+    result = []
+
+    for news in all_news:
+
+        link = news.find('a')
+        link_url = fix_sky_link(link['href'])
+
+        date_time_string = get_sky_article_time(link_url)
+
+        if not date_time_string:
+            continue
+
+        news_datetime = datetime.strptime(date_time_string, '%Y-%m-%dT%H:%M:%S')
+
+        if news_datetime <= from_time:  # No need to parse outdated news
+            continue
+        #
+        #
+        text = get_sky_article_text(link_url)
+        if not text:  #  Not parsing live-blogs and non-articles
+            continue
+
+        author = 'SKY'
+
+        title_element = news.find('span', class_='sdc-site-tile__headline-text')
+        title = title_element.text
+
+        category = categorize_article(text)
+
+        news_object = News(
+            url=link_url,
+            date_time=news_datetime,
+            title=title,
+            text=text,
+            author=author,
+            category=category
+        )
+        result.append(news_object)
+
+    return result
 
 
 if __name__ == '__main__':
-    pass
+    print(parse_sky(datetime.now()-timedelta(hours=16)))

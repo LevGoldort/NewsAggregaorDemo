@@ -142,4 +142,12 @@ def get_category_names(db: Session) -> list:
 def get_categories(db: Session) -> list:
 
     categories = db.query(NewsCategory).all()
+
     return categories
+
+
+def get_subscriptions(db: Session) -> list:
+
+    subscriptions = db.query(Subscription).all()
+
+    return subscriptions

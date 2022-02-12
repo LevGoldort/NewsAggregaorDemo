@@ -10,9 +10,7 @@ from newsparser.output import send_mail
 def update_news():
     """Function to parse news and send them to db"""
 
-    models.Base.metadata.create_all(bind=engine)  # Bind engine on startup
-
-    from_time = crud.get_last_news_datetime(db=get_db())
+    from_time = crud.get_last_news_datetime(db=db)
 
     results_ynet = parse_ynet(from_time=from_time)
     results_sky = parse_sky(from_time=from_time)
@@ -21,8 +19,6 @@ def update_news():
     for res in results:
         crud.create_news(db=db, news=res)
         print(res.date_time)
-
-    update_users('ASAP', 'ASAP', 'ASAP')  #  Second job
 
 
 def update_users(subscription_type, subscription_day, subscription_time):

@@ -24,6 +24,7 @@ class User(Base):
     email = Column(String())
     subscription_id = Column(Integer())
     news_received = Column(Integer())
+    news_categories = Column(String())
     last_update = Column(DateTime)  # The time news were sent to user previously
 
 

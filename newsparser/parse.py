@@ -4,6 +4,7 @@ import random
 from bs4 import BeautifulSoup
 from datetime import datetime
 from newsparser.models import News
+from newsparser.constants import CATEGORIES
 
 YNET_URL = 'https://www.ynetnews.com/category/3089'
 
@@ -12,7 +13,6 @@ POLITICS_KEYWORDS = frozenset(['president', 'prime minister', 'law', 'U.N', 'NAT
                                'democrats', 'republicans', 'minister', 'vote', 'politician', 'political party'])
 FINANCE_KEYWORDS = frozenset(['dollar', 'stocks', 'shekel', 'bitcoin', 'company', 'sp500', 'nasdaq'])
 WEATHER_KEYWORDS = frozenset(['rain', 'snow', 'sunny', 'earthquake', 'clouds', 'storm', 'flood'])
-CATEGORIES = frozenset(['sports', 'politics', 'finance', 'weather'])
 
 
 def get_ynet_article_text(url):

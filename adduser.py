@@ -6,7 +6,7 @@ from datetime import datetime
 from newsparser.db import db
 from newsparser.models import User, Base
 from newsparser.db import engine
-import newsparser.crud as crud
+from newsparser import crud
 
 
 def check_email(email:str) -> bool:

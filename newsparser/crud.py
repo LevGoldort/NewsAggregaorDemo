@@ -50,7 +50,9 @@ def get_last_news_datetime(db: Session) -> datetime:
     Get the latest added news datetime when it was written to website
     """
     last_record = db.query(News).order_by(News.news_id.desc()).first()  # if empty = return datetime - timedelta
-    return last_record.date_time or datetime.now() - timedelta(hours=24)
+    if not last_record:
+        return datetime.now() - timedelta(hours=24)
+    return last_record.date_time
 
 
 def create_user(db: Session, user: User) -> User:
@@ -86,21 +88,22 @@ def update_user(db: Session, user_id: int, new_update_time: datetime, new_news_r
     db.commit()
 
 
-def generate_mail_body(db: Session, user: User) -> str:
+def generate_mail_body(db: Session, user: User) -> tuple:
     """
-    Generating a mail body with unread news for user.
+    Generating a number of unread news and mail body with unread news for user.
     Title + Link to the news
     """
 
     news = filter_news_by_cat_date(db=db, from_time=user.last_update,
-                                   categories=match_categories(user.subscription_category))
+                                   categories=match_categories(user.news_categories))
     mail_string: str = ''
-
+    result = 0
     for element in news:
+        result += 1
         mail_string += element.title + '\n'
         mail_string += element.url + '\n\n'
 
-    return mail_string
+    return result, mail_string
 
 
 def match_categories(user_category: str):

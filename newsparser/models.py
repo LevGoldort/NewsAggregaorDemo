@@ -33,7 +33,7 @@ class Subscription(Base):
 
     # fields
     subscription_id = Column(Integer(), primary_key=True, index=True)  # Make just id
-    short_name = Column(String())
+    short_name = Column(String(), unique=True)
     long_name = Column(String())
     cron_setting = Column(String())
 

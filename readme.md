@@ -2,15 +2,15 @@
 
 Backend for simple email news subscription service.
 
-The program parse https://www.ynetnews.com/category/3089, categorize the news for 4 categories - politics, sports, finance and weather and saves them to DB.
+The program parse https://www.ynetnews.com/category/3089 and https://news.sky.com, categorize the news for categories and saves them to DB.
 
 There are three types of user subscription - ASAP, Daily and Weekly. For each type there are a number of time and day options when the user will get the email notifications.
+
+Both category and subscription data loaded from config.json and can be changed easily.
 
 ### **Modules:**
 
 `newsparser` package contains all functions for parsing and working with db:
-
-`constants.py` - program constants such as CATEGORIES set and system variables, such as abspath to files and username.
 
 `crud.py` - all function to get/put data to db
 
@@ -24,10 +24,14 @@ There are three types of user subscription - ASAP, Daily and Weekly. For each ty
 
 Global script modules:
 
-`cron-news-updater.py` - module to run scrapers and update ASAP subscribers
+`jobs.py` - module for jobs functions
 
-`cron-manager.py` - module to initiate crons.
+`main.py` - point of start
+
+`adduser.py` - CLI to add subscribers to db. Run `python adduser.py -h` to get help with calling it.
+
+`exploration.py` - some functions and data manipulation to explore collected data. Figures generated on some initial data located in `figures` folder
 
 ### **Starting up**
 
-clone the project and start `cron-manager.py` 
+clone the project, generate config and start `main.py` 

@@ -6,7 +6,13 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 
-def send_mail(email, body):
+def send_mail(email: str, body: str):
+    """
+    Simple output to email
+    :param email:
+    :param body:
+    :return: None
+    """
 
     with open('config.json') as f:
         config_dict = json.load(f)

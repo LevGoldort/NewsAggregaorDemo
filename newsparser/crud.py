@@ -154,3 +154,7 @@ def get_subscriptions(db: Session) -> list:
     subscriptions = db.query(Subscription).all()
 
     return subscriptions
+
+
+def get_subscription_ids(db: Session) -> list:
+    return [element[0] for element in db.query(Subscription.subscription_id).all()]

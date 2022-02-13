@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 # define sqlite connection url
+
 SQLALCHEMY_DATABASE_URL = f"sqlite:///newsparser.db"
 
 # create new engine instance

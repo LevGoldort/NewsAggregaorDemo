@@ -11,6 +11,11 @@ from newsparser.db import db
 
 
 def get_ynet_article_text(url: str) -> str:
+    """
+    Get news text for DB and categorization
+    :param url:
+    :return:
+    """
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
 
@@ -21,6 +26,11 @@ def get_ynet_article_text(url: str) -> str:
 
 
 def get_sky_article_text(url: str) -> str:
+    """
+    Get news text for DB and categorization
+    :param url:
+    :return:
+    """
 
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -34,6 +44,11 @@ def get_sky_article_text(url: str) -> str:
 
 
 def get_sky_article_time(url: str) -> str:
+    """
+    Sky website has time parametr only on the news page, therefore this function scraps it.
+    :param url:
+    :return:
+    """
 
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -50,11 +65,16 @@ def get_sky_article_time(url: str) -> str:
 
 
 def categorize_article(text: str) -> str:
-    # Checking text for the keywords and return category string
+    """
+    Checking text for the keywords and return category string
+    :param text: news text
+    :return: category
+    """
+
     found_categories = []
 
     categories = crud.get_categories(db=db)
-    cat_list=[]
+    cat_list = []
 
     for category in categories:
         keywords = category.category_keywords.split(',')
@@ -69,7 +89,12 @@ def categorize_article(text: str) -> str:
 
 
 def parse_ynet(url: str, from_time: datetime) -> list:
-    # Parses news from YNET_URL to the list of News class. Takes only the news appeared after from_time.
+    """
+    Parses news from url to the list of News class. Takes only the news appeared after from_time.
+    :param url:
+    :param from_time:
+    :return:
+    """
 
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -110,13 +135,24 @@ def parse_ynet(url: str, from_time: datetime) -> list:
 
 
 def fix_sky_link(url: str) -> str:
-    # Some links are without site
+    """
+    Some sky links are missing domain
+    :param url:
+    :return:
+    """
     if url.find('news.sky.com') == -1:
         return 'https://news.sky.com/'+url
     return url
 
 
 def parse_sky(url: str, from_time: datetime) -> list:
+    """
+    Parses news from url to the list of News class. Takes only the news appeared after from_time.
+
+    :param url:
+    :param from_time:
+    :return:
+    """
 
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
@@ -137,8 +173,7 @@ def parse_sky(url: str, from_time: datetime) -> list:
 
         if news_datetime <= from_time:  # No need to parse outdated news
             continue
-        #
-        #
+
         text = get_sky_article_text(link_url)
         if not text:  # Not parsing live-blogs and non-articles
             continue

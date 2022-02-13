@@ -6,7 +6,7 @@ from newsparser.output import send_mail
 
 
 def update_news(ynet_url: str, sky_url: str):
-    """Function to parse news and send them to db"""
+    """Function to run news parsers and send them to db"""
     from_time = crud.get_last_news_datetime(db=db)
 
     results_ynet = parse_ynet(from_time=from_time, url=ynet_url)

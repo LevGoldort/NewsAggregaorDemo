@@ -9,7 +9,9 @@ from newsparser.db import engine
 from newsparser import crud
 
 
-def check_email(email:str) -> bool:
+def check_email(email: str) -> bool:
+    """easy email validation"""
+
     regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
     if re.fullmatch(regex, email):
         return True
@@ -17,6 +19,7 @@ def check_email(email:str) -> bool:
 
 
 def generate_subscription_help() -> str:
+    """Load subscription list from db and show long_name (descriptions)"""
     subscriptions = crud.get_subscriptions(db)
     result = 'Type number of one of these subscription options: \n'
     for subscription in subscriptions:
@@ -26,6 +29,7 @@ def generate_subscription_help() -> str:
 
 
 def generate_category_help() -> str:
+    """Load categories from DB and prepare to show"""
     categories = crud.get_category_names(db)
     result = 'Choose some of these names and separate with coma. Do not use spaces!'
     for category in categories:
@@ -34,11 +38,23 @@ def generate_category_help() -> str:
     return result
 
 
-def check_subscriptions_types(subscription_type):
-    return True
+def check_subscriptions_types(subscription_id: int) -> bool:
+    """
+    User input validation
+    :param subscription_id:
+    :return:
+    """
+    if subscription_id in crud.get_subscription_ids(db):
+        return True
+    return False
 
 
-def check_category(news_category):
+def check_category(news_category: str) -> bool:
+    """
+    User input validation
+    :param news_category:
+    :return:
+    """
     if crud.match_categories(news_category):
         return True
     return False
